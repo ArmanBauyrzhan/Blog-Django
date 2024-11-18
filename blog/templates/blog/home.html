@@ -1,5 +1,9 @@
 {% extends 'blog/base.html' %}
 
 {% block content %}
-    <h1 align="center">Добро пожаловать</h1>
+    {% if user.is_authenticated %}
+        <h1 align="center">Добро пожаловать, {{ user.username }}!</h1>
+    {% else %}
+        <h1 align="center">Добро пожаловать на сайт!</h1>
+    {% endif %}
 {% endblock %}

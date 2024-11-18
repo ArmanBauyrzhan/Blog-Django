@@ -1,0 +1,20 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+    <h1>Регистрация</h1>
+    <form action="{% url 'register' %}" method="post">
+        {% csrf_token %}
+
+        {% for f in form %}
+            <p>
+                <label class="form-label" for="{{ f.id_for_label }}">{{ f.label }}: </label>
+                {{ f }}
+            </p>
+
+            <div class="form-error">{{ f.errors }}</div>
+        {% endfor %}
+
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+    <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+{% endblock %}
