@@ -1,7 +1,7 @@
-body {
+html, body {
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
     height: 111vh; /* Высота экрана */
     display: flex;
     flex-direction: column;

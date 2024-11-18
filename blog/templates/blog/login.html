@@ -2,7 +2,7 @@
 
 {% block content %}
     <h1>Войти</h1>
-    <form action="{% url 'login' %}">
+    <form action="{% url 'login' %}" method="POST">
         {% csrf_token %}
 
         {% for f in form %}
@@ -17,4 +17,5 @@
         <button type="submit">Войти</button>
     </form>
     <p>Нет аккаунта? <a href="{% url 'register' %}">Зарегистрируйтесь</a></p>
+    <p><a href="{% url 'home' %}">Вернуться на главную страницу</a></p>
 {% endblock %}
