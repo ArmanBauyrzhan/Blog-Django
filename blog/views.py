@@ -1,10 +1,10 @@
-from msilib.schema import CustomAction
-
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
 from django.contrib import messages
-from django.shortcuts import render, redirect, HttpResponse
-from .forms import CustomUserCreationForm, PostForm
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
+from .forms import CustomUserCreationForm, PostForm, CommentForm
+from .models import Post
 
 menu = [{'title': 'Главная', 'url_name': 'home'},
         {'title': 'Все посты', 'url_name': 'view-post'},
@@ -64,6 +64,38 @@ def create_post(request):
         form = PostForm()
 
     return render(request, 'blog/create_post.html', {'form': form})
+
+def profile(request, username=None):
+    user = get_object_or_404(User, username=username)
+    posts = Post.objects.filter(author=user)
+    return render(request, 'blog/profile.html', {'user': user, 'posts': posts})
+
+def post_detail(request, slug):
+    post = get_object_or_404(Post, slug=slug)
+    comments = post.comments.all()
+
+    if post.is_visible_on_request and not request.user.is_authenticated:
+        messages.warning(request, 'Этот пост доступен только зарегистрированным пользователям.')
+        return redirect('login')
+
+    if request.method == 'POST':
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.post = post
+            comment.user = request.user
+            comment.save()
+            return redirect('post_detail', slug=post.slug)
+    else:
+        comment_form = CommentForm()
+
+    return render(request, 'blog/post_detail.html', {
+        'post': post,
+        'commnets': comments,
+        'comment_form': comment_form,
+    })
+
+
 
 def pageNotFound(request, exception):
     return HttpResponse('Page not found')

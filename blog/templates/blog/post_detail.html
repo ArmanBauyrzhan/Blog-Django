@@ -1,0 +1,38 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+    <div class="post-detail">
+    <h1>{{ post.title }}</h1>
+    <p>Автор: <a href="{% url 'profile' post.author.username %}">{{ post.author.username }}</a></p>
+    <p>Опубликовано: {{ post.created_at|date:"d.m.Y H:i" }}</p>
+    <div class="post-content">
+        {{ post.content }}
+    </div>
+
+    <h2>Комментарии</h2>
+    {% if comments %}
+        <ul>
+            {% for comment in comments %}
+                <li>
+                    <p><strong>{{ comment.user.username }}</strong> сказал(а):</p>
+                    <p>{{ comment.content }}</p>
+                    <p class="comment-date">{{ comment.created_at|date:"d.m.Y H:i" }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Пока комментариев нет. Будьте первым!</p>
+    {% endif %}
+
+    {% if request.user.is_authenticated %}
+        <h3>Оставить комментарий</h3>
+        <form method="POST">
+            {% csrf_token %}
+            {{ comment_form.as_p }}
+            <button type="submit" class="btn btn-primary">Отправить</button>
+        </form>
+    {% else %}
+        <p><a href="{% url 'login' %}">Войдите в аккаунт</a>, чтобы оставить комментарий.</p>
+    {% endif %}
+    </div>
+{% endblock %}

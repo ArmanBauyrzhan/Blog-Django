@@ -34,3 +34,15 @@ class PostForm(forms.ModelForm):
         required=False,
         widget=forms.CheckboxSelectMultiple
     )
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment # С какой моделью работаем
+        fields = ('content',) # Какие поля будут доступны в форме
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Напишите ваш комментарий...',
+                'rows': 3,
+            }),
+        }

@@ -8,4 +8,6 @@ urlpatterns = [
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
     path('create-post/', create_post, name='create-post'),
+    path('profile/<str:username>/', profile, name='profile'),
+    path('post/<slug:slug>/', post_detail, name='post-detail'),
 ]

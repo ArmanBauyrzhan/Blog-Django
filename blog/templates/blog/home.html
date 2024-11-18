@@ -3,7 +3,14 @@
 {% block content %}
     {% if user.is_authenticated %}
         <h1 align="center">Добро пожаловать, {{ user.username }}!</h1>
+        <p align="center">
+            <a href="{% url 'profile' user.username %}">Посмотреть профиль</a>
+        </p>
     {% else %}
         <h1 align="center">Добро пожаловать на сайт!</h1>
+        <p align="center">
+            <a href="{% url 'login' %}">Войти</a> или
+            <a href="{% url 'register' %}">Зарегистрироваться</a>
+        </p>
     {% endif %}
 {% endblock %}
