@@ -4,18 +4,20 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from .forms import CustomUserCreationForm, PostForm, CommentForm
-from .models import Post
-
-menu = [{'title': 'Главная', 'url_name': 'home'},
-        {'title': 'Все посты', 'url_name': 'view-post'},
-        {'title': 'Создать пост', 'url_name': 'create-post'},
-]
+from .models import *
+from django.contrib.auth.decorators import login_required
 
 def home(request):
-    context = {
-        'menu': menu,
-    }
-    return render(request, 'blog/home.html', context=context)
+    if request.user.is_authenticated:
+        # Получаем авторов, на которых подписан текущий пользователь
+        subscriptions = Subscription.objects.filter(subscriber=request.user).values_list('subscribed_to', flat=True)
+        # Фильтруем посты
+        posts = Post.objects.filter(is_public=True) | Post.objects.filter(author__in=subscriptions).order_by('-created_at')
+    else:
+        # Для неавторизованных пользователей только публичные посты
+        posts = Post.objects.filter(is_public=True).order_by('-created_at')
+
+    return render(request, 'blog/home.html', {'posts': posts})
 
 def register(request):
     if request.method == 'POST':
@@ -65,10 +67,20 @@ def create_post(request):
 
     return render(request, 'blog/create_post.html', {'form': form})
 
-def profile(request, username=None):
+
+def profile(request, username):
     user = get_object_or_404(User, username=username)
     posts = Post.objects.filter(author=user)
-    return render(request, 'blog/profile.html', {'user': user, 'posts': posts})
+
+    # Проверяем, подписан ли текущий пользователь на этого пользователя
+    is_subscribed = Subscription.objects.filter(subscriber=request.user,
+                                                subscribed_to=user).exists() if request.user.is_authenticated else False
+
+    return render(request, 'blog/profile.html', {
+        'user': user,
+        'posts': posts,
+        'is_subscribed': is_subscribed,
+    })
 
 def post_detail(request, slug):
     post = get_object_or_404(Post, slug=slug)
@@ -95,6 +107,45 @@ def post_detail(request, slug):
         'comment_form': comment_form,
     })
 
+
+def subscribe(request, user_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    subscribed_user = get_object_or_404(User, id=user_id)
+
+    if request.user == subscribed_user:
+        messages.error(request, "Нельзя подписываться на самого себя!")
+        return redirect('profile', username=subscribed_user.username)
+
+    if Subscription.objects.filter(subscriber=request.user, subscribed_to=subscribed_user).exists():
+        messages.error(request, f"Вы уже подписаны на {subscribed_user.username}.")
+    else:
+        Subscription.objects.create(subscriber=request.user, subscribed_to=subscribed_user)
+        messages.success(request, f"Вы подписались на {subscribed_user.username}.")
+
+    return redirect('profile', username=subscribed_user.username)
+
+
+def unsubscribe(request, user_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    subscribed_user = get_object_or_404(User, id=user_id)
+
+    if request.user == subscribed_user:
+        messages.error(request, "Нельзя отписываться от самого себя!")
+        return redirect('profile', username=subscribed_user.username)
+
+    subscription = Subscription.objects.filter(subscriber=request.user, subscribed_to=subscribed_user).first()
+
+    if subscription:
+        subscription.delete()
+        messages.success(request, f"Вы отписались от {subscribed_user.username}.")
+    else:
+        messages.error(request, f"Вы не были подписаны на {subscribed_user.username}.")
+
+    return redirect('profile', username=subscribed_user.username)
 
 
 def pageNotFound(request, exception):

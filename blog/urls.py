@@ -10,4 +10,6 @@ urlpatterns = [
     path('create-post/', create_post, name='create-post'),
     path('profile/<str:username>/', profile, name='profile'),
     path('post/<slug:slug>/', post_detail, name='post-detail'),
+    path('subscribe/<int:user_id>/', subscribe, name='subscribe'),
+    path('unsubscribe/<int:user_id>/', unsubscribe, name='unsubscribe'),
 ]

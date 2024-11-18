@@ -13,4 +13,18 @@
             <a href="{% url 'register' %}">Зарегистрироваться</a>
         </p>
     {% endif %}
+    <h2 align="center">Посты:</h2>
+    {% if posts %}
+        <ul class="post-list">
+            {% for post in posts %}
+                <li>
+                    <a href="{% url 'post-detail' post.slug %}">{{ post.title }}</a>
+                    <p>Автор: <a href="{% url 'profile' post.author.username %}">{{ post.author.username }}</a></p>
+                    <p>Опубликовано: {{ post.created_at|date:"d.m.Y H:i" }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Нет доступных постов.</p>
+    {% endif %}
 {% endblock %}

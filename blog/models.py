@@ -41,7 +41,6 @@ class Tag(models.Model):
 # Модель Subscription
 class Subscription(models.Model):
     subscriber = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
-    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')
     subscribed_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscribers')
 
     class Meta:
