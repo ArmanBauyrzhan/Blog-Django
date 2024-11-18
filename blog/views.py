@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from .forms import CustomUserCreationForm, PostForm, CommentForm
 from .models import *
-from django.contrib.auth.decorators import login_required
 
 def home(request):
     if request.user.is_authenticated:
@@ -147,6 +146,32 @@ def unsubscribe(request, user_id):
 
     return redirect('profile', username=subscribed_user.username)
 
+def edit_post(request, slug):
+    post = get_object_or_404(Post, slug=slug)  # Получаем пост по его slug
+    if request.user != post.author:  # Проверяем, что пост принадлежит текущему пользователю
+        messages.error(request, "Вы не можете редактировать этот пост.")
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = PostForm(request.POST, instance=post)  # Привязываем форму к существующему посту
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Пост успешно отредактирован.")
+            return redirect('post-detail', slug=post.slug)  # Перенаправляем на страницу поста
+    else:
+        form = PostForm(instance=post)  # Если GET-запрос, просто показываем форму с данными поста
+
+    return render(request, 'blog/edit_post.html', {'form': form, 'post': post})
+
+def delete_post(request, slug):
+    post = get_object_or_404(Post, slug=slug)  # Получаем пост по его slug
+    if request.user != post.author:  # Проверяем, что пост принадлежит текущему пользователю
+        messages.error(request, "Вы не можете удалить этот пост.")
+        return redirect('home')  # Перенаправляем, если пользователь не автор поста
+
+    post.delete()  # Удаляем пост
+    messages.success(request, "Пост успешно удален.")
+    return redirect('home')  # Перенаправляем на главную страницу
 
 def pageNotFound(request, exception):
-    return HttpResponse('Page not found')
+    return render(request, 'blog/page_not_found.html', {'exception': exception})
