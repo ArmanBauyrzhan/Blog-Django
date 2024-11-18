@@ -2,7 +2,6 @@ from django.shortcuts import render, HttpResponse
 
 menu = [{'title': 'О сайте', 'urlname': 'about'},
         {'title': 'Добавить статью', 'url_name': 'PostForm'},
-        {'title': 'Выйти', 'url_name': 'logout'},
         {'title': 'Войти', 'urlname': 'login'},
 ]
 

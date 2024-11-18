@@ -1,0 +1,58 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    height: 111vh; /* Высота экрана */
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between; /* Разделение кнопок на стороны */
+    align-items: center;
+}
+
+/* Стили для горизонтального меню */
+.mainmenu {
+    list-style-type: none; /* Убираем маркеры */
+    padding: 0; /* Убираем внутренние отступы */
+    margin: 0; /* Убираем внешние отступы */
+    display: flex; /* Устанавливаем горизонтальное выравнивание */
+    gap: 15px; /* Расстояние между элементами */
+}
+
+.mainmenu li {
+    display: inline; /* Отображаем элементы списка в одну строку */
+}
+
+.mainmenu li a {
+    text-decoration: none; /* Убираем подчеркивание ссылок */
+    color: blue; /* Цвет ссылок */
+    font-size: 14px; /* Размер шрифта */
+}
+
+.mainmenu li a:hover {
+    text-decoration: underline; /* Подчеркивание при наведении */
+    color: darkblue; /* Цвет при наведении */
+}
+
+/* Основной контент на весь экран */
+.context-text {
+    flex-grow: 1; /* Заполняет оставшееся пространство */
+    padding: 20px;
+    text-align: center;
+}
+
+.table-content{
+    color: white;
+}
+
+/* Дополнительные стили для footer */
+#footer {
+    text-align: left;
+    font-size: 12px;
+    color: gray;
+    margin-top: 20px;
+}
