@@ -1,0 +1,36 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+    <div class="tag-filter">
+        <h1>Посты</h1>
+
+        <h3>Фильтровать по тегам:</h3>
+        <form method="GET">
+            <select name="tag">
+                <option value="">Выберите тег</option>
+                {% for tag in tags %}
+                    <option value="{{ tag.slug }}" {% if selected_tag and selected_tag.slug == tag.slug %}selected{% endif %}>
+                        {{ tag.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit">Фильтровать</button>
+        </form>
+
+        <h2>{% if selected_tag %}Посты с тегом: {{ selected_tag.name }}{% else %}Все посты{% endif %}</h2>
+
+        {% if posts %}
+            <ul>
+                {% for post in posts %}
+                    <li>
+                        <a href="{% url 'post-detail' post.slug %}">{{ post.title }}</a>
+                        <p>Автор: <a href="{% url 'profile' post.author.username %}">{{ post.author.username }}</a></p>
+                        <p>Опубликовано: {{ post.created_at|date:"d.m.Y H:i" }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Нет постов с этим тегом.</p>
+        {% endif %}
+    </div>
+{% endblock %}

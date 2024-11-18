@@ -14,4 +14,6 @@ urlpatterns = [
     path('unsubscribe/<int:user_id>/', unsubscribe, name='unsubscribe'),
     path('post/edit/<slug:slug>/', edit_post, name='edit-post'),
     path('post/delete/<slug:slug>/', delete_post, name='delete-post'),
+    path('posts/', posts_by_tag, name='all-posts'),
+    path('posts/tag/<slug:tag_slug>/', posts_by_tag, name='posts-by-tag'),
 ]

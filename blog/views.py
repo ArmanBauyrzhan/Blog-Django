@@ -7,16 +7,19 @@ from .forms import CustomUserCreationForm, PostForm, CommentForm
 from .models import *
 
 def home(request):
-    if request.user.is_authenticated:
-        # Получаем авторов, на которых подписан текущий пользователь
-        subscriptions = Subscription.objects.filter(subscriber=request.user).values_list('subscribed_to', flat=True)
-        # Фильтруем посты
-        posts = Post.objects.filter(is_public=True) | Post.objects.filter(author__in=subscriptions).order_by('-created_at')
-    else:
-        # Для неавторизованных пользователей только публичные посты
-        posts = Post.objects.filter(is_public=True).order_by('-created_at')
+    # Получаем все теги
+    tags = Tag.objects.all()
 
-    return render(request, 'blog/home.html', {'posts': posts})
+    # Получаем выбранный тег из запроса
+    selected_tag_slug = request.GET.get('tag')
+
+    if selected_tag_slug:
+        tag = Tag.objects.get(slug=selected_tag_slug)
+        posts = Post.objects.filter(tags=tag).order_by('-created_at')  # Фильтруем по выбранному тегу
+    else:
+        posts = Post.objects.all().order_by('-created_at')  # Если тег не выбран, показываем все посты
+
+    return render(request, 'blog/home.html', {'posts': posts, 'tags': tags, 'selected_tag': selected_tag_slug})
 
 def register(request):
     if request.method == 'POST':
@@ -172,6 +175,19 @@ def delete_post(request, slug):
     post.delete()  # Удаляем пост
     messages.success(request, "Пост успешно удален.")
     return redirect('home')  # Перенаправляем на главную страницу
+
+def posts_by_tag(request, tag_slug=None):
+    # Получаем все теги
+    tags = Tag.objects.all()
+
+    # Если тег был передан в URL, фильтруем посты по тегу
+    if tag_slug:
+        tag = Tag.objects.get(slug=tag_slug)
+        posts = Post.objects.filter(tags=tag).order_by('-created_at')  # Сортировка по дате
+    else:
+        posts = Post.objects.all().order_by('-created_at')  # Если тег не передан, показываем все посты
+
+    return render(request, 'blog/posts_by_tag.html', {'posts': posts, 'tags': tags, 'selected_tag': tag if tag_slug else None})
 
 def pageNotFound(request, exception):
     return render(request, 'blog/page_not_found.html', {'exception': exception})
