@@ -49,9 +49,6 @@ def logout_view(request):
     logout(request)
     return redirect('home')
 
-def post_list(request):
-    return HttpResponse('Все посты')
-
 def create_post(request):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -188,6 +185,32 @@ def posts_by_tag(request, tag_slug=None):
         posts = Post.objects.all().order_by('-created_at')  # Если тег не передан, показываем все посты
 
     return render(request, 'blog/posts_by_tag.html', {'posts': posts, 'tags': tags, 'selected_tag': tag if tag_slug else None})
+
+def post_detail(request, slug):
+    post = get_object_or_404(Post, slug=slug)
+    comments = post.comments.all()  # Получаем все комментарии для поста
+
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            messages.error(request, "Войдите, чтобы оставить комментарий.")
+            return redirect('login')
+
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.user = request.user
+            comment.save()
+            messages.success(request, "Комментарий успешно добавлен.")
+            return redirect('post-detail', slug=slug)
+    else:
+        form = CommentForm()
+
+    return render(request, 'blog/post_detail.html', {
+        'post': post,
+        'comments': comments,
+        'comment_form': form
+    })
 
 def pageNotFound(request, exception):
     return render(request, 'blog/page_not_found.html', {'exception': exception})

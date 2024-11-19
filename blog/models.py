@@ -19,6 +19,10 @@ class Post(models.Model):
     def get_comments(self):
         return self.comments.all()
 
+    class Meta:
+        verbose_name = 'Посты'
+        verbose_name_plural = verbose_name
+
 # Модель Comment
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
@@ -30,6 +34,10 @@ class Comment(models.Model):
     def __str__(self):
         return f"Комментарий к посту {self.post.title} от {self.user.username}"
 
+    class Meta:
+        verbose_name = 'Комментарии'
+        verbose_name_plural = verbose_name
+
 # Модель Tag
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -38,12 +46,18 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'Тэги'
+        verbose_name_plural = verbose_name
+
 # Модель Subscription
 class Subscription(models.Model):
     subscriber = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
     subscribed_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscribers')
 
     class Meta:
+        verbose_name = 'Подписки'
+        verbose_name_plural = verbose_name
         unique_together = ('subscriber', 'subscribed_to')
 
     def __str__(self):
