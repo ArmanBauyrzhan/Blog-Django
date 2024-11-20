@@ -16,7 +16,6 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = ('post', 'user', 'content', 'created_at')
     list_filter = ('created_at', 'post')
     search_fields = ('content', 'user__username', 'post__title')
-    prepopulated_fields = {'slug': ('content',)}
     date_hierarchy = 'created_at'
     ordering = ('-created_at',)
 

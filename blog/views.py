@@ -82,30 +82,38 @@ def profile(request, username):
     })
 
 def post_detail(request, slug):
+    # Получаем пост по slug или возвращаем 404
     post = get_object_or_404(Post, slug=slug)
+    # Получаем все комментарии к посту
     comments = post.comments.all()
 
-    if post.is_visible_on_request and not request.user.is_authenticated:
-        messages.warning(request, 'Этот пост доступен только зарегистрированным пользователям.')
-        return redirect('login')
-
+    # Обработка формы комментария
     if request.method == 'POST':
+        # Проверяем, аутентифицирован ли пользователь
+        if not request.user.is_authenticated:
+            messages.error(request, "Войдите, чтобы оставить комментарий.")
+            return redirect('login')
+
+        # Обрабатываем отправленную форму
         comment_form = CommentForm(request.POST)
         if comment_form.is_valid():
             comment = comment_form.save(commit=False)
             comment.post = post
             comment.user = request.user
             comment.save()
-            return redirect('post_detail', slug=post.slug)
+            messages.success(request, "Комментарий успешно добавлен.")
+            # Перенаправляем на ту же страницу после добавления комментария
+            return redirect('post-detail', slug=slug)
     else:
+        # Если GET-запрос, показываем пустую форму
         comment_form = CommentForm()
 
+    # Рендерим страницу с постом и формой
     return render(request, 'blog/post_detail.html', {
         'post': post,
-        'commnets': comments,
-        'comment_form': comment_form,
+        'comments': comments,
+        'comment_form': comment_form
     })
-
 
 def subscribe(request, user_id):
     if not request.user.is_authenticated:
@@ -185,32 +193,6 @@ def posts_by_tag(request, tag_slug=None):
         posts = Post.objects.all().order_by('-created_at')  # Если тег не передан, показываем все посты
 
     return render(request, 'blog/posts_by_tag.html', {'posts': posts, 'tags': tags, 'selected_tag': tag if tag_slug else None})
-
-def post_detail(request, slug):
-    post = get_object_or_404(Post, slug=slug)
-    comments = post.comments.all()  # Получаем все комментарии для поста
-
-    if request.method == 'POST':
-        if not request.user.is_authenticated:
-            messages.error(request, "Войдите, чтобы оставить комментарий.")
-            return redirect('login')
-
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.post = post
-            comment.user = request.user
-            comment.save()
-            messages.success(request, "Комментарий успешно добавлен.")
-            return redirect('post-detail', slug=slug)
-    else:
-        form = CommentForm()
-
-    return render(request, 'blog/post_detail.html', {
-        'post': post,
-        'comments': comments,
-        'comment_form': form
-    })
 
 def pageNotFound(request, exception):
     return render(request, 'blog/page_not_found.html', {'exception': exception})

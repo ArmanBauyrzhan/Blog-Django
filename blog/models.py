@@ -26,7 +26,6 @@ class Post(models.Model):
 # Модель Comment
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
-    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)

@@ -9,6 +9,13 @@
         {{ post.content }}
     </div>
 
+    {% if user.is_authenticated and post.author == user %}
+        <p>
+            <a href="{% url 'edit-post' post.slug %}">Редактировать пост</a>
+            <a href="{% url 'delete-post' post.slug %}" onclick="return confirm('Вы уверены, что хотите удалить этот пост?');">Удалить пост</a>
+        </p>
+    {% endif %}
+
     <h2>Комментарии</h2>
     {% if comments %}
         <ul>
